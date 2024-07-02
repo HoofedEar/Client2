@@ -937,7 +937,7 @@ class Game extends Client {
         }
     };
 
-    private signUp = async (username: string, password: string, reconnect: boolean): Promise<void> => {
+    private signUp = async (username: string, password: string): Promise<void> => {
         try {
             this.stream = new ClientStream(await ClientStream.openSocket({host: Client.serverAddress, port: 43594 + Client.portOffset}));
             await this.stream?.readBytes(this.in.data, 0, 8);
