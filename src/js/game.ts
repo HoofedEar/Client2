@@ -760,7 +760,7 @@ class Game extends Client {
             buttonY += 20;
 
             if (this.mouseClickButton === 1 && this.mouseClickX >= buttonX - 75 && this.mouseClickX <= buttonX + 75 && this.mouseClickY >= buttonY - 20 && this.mouseClickY <= buttonY + 20) {
-                await this.signUp(this.username, this.password, false);
+                await this.signUp(this.username, this.password);
             }
 
             buttonX = ((this.width / 2) | 0) + 80;
