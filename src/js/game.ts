@@ -647,6 +647,8 @@ class Game extends Client {
 
             y += 20;
             if (this.mouseClickButton === 1 && this.mouseClickX >= x - 75 && this.mouseClickX <= x + 75 && this.mouseClickY >= y - 20 && this.mouseClickY <= y + 20) {
+                this.loginMessage0 = 'Create a free account';
+                this.loginMessage1 = 'Enter a username & password.';
                 this.titleScreenState = 3;
                 this.titleLoginField = 0;
             }
@@ -737,14 +739,93 @@ class Game extends Client {
                     }
                 }
             }
+            // sign up screen?
         } else if (this.titleScreenState === 3) {
-            const x: number = (this.width / 2) | 0;
-            let y: number = ((this.height / 2) | 0) + 50;
-            y += 20;
+            let y: number = ((this.height / 2) | 0) - 40;
+            y += 30;
+            y += 25;
 
-            if (this.mouseClickButton === 1 && this.mouseClickX >= x - 75 && this.mouseClickX <= x + 75 && this.mouseClickY >= y - 20 && this.mouseClickY <= y + 20) {
-                this.titleScreenState = 0;
+            if (this.mouseClickButton === 1 && this.mouseClickY >= y - 15 && this.mouseClickY < y) {
+                this.titleLoginField = 0;
             }
+            y += 15;
+
+            if (this.mouseClickButton === 1 && this.mouseClickY >= y - 15 && this.mouseClickY < y) {
+                this.titleLoginField = 1;
+            }
+            // y += 15; dead code
+
+            let buttonX: number = ((this.width / 2) | 0) - 80;
+            let buttonY: number = ((this.height / 2) | 0) + 50;
+            buttonY += 20;
+
+            if (this.mouseClickButton === 1 && this.mouseClickX >= buttonX - 75 && this.mouseClickX <= buttonX + 75 && this.mouseClickY >= buttonY - 20 && this.mouseClickY <= buttonY + 20) {
+                await this.signUp(this.username, this.password, false);
+            }
+
+            buttonX = ((this.width / 2) | 0) + 80;
+            if (this.mouseClickButton === 1 && this.mouseClickX >= buttonX - 75 && this.mouseClickX <= buttonX + 75 && this.mouseClickY >= buttonY - 20 && this.mouseClickY <= buttonY + 20) {
+                this.titleScreenState = 0;
+                this.username = '';
+                this.password = '';
+            }
+
+            // eslint-disable-next-line no-constant-condition
+            while (true) {
+                const key: number = this.pollKey();
+                if (key === -1) {
+                    return;
+                }
+
+                let valid: boolean = false;
+                for (let i: number = 0; i < PixFont.CHARSET.length; i++) {
+                    if (String.fromCharCode(key) === PixFont.CHARSET.charAt(i)) {
+                        valid = true;
+                        break;
+                    }
+                }
+
+                if (this.titleLoginField === 0) {
+                    if (key === 8 && this.username.length > 0) {
+                        this.username = this.username.substring(0, this.username.length - 1);
+                    }
+
+                    if (key === 9 || key === 10 || key === 13) {
+                        this.titleLoginField = 1;
+                    }
+
+                    if (valid) {
+                        this.username = this.username + String.fromCharCode(key);
+                    }
+
+                    if (this.username.length > 12) {
+                        this.username = this.username.substring(0, 12);
+                    }
+                } else if (this.titleLoginField === 1) {
+                    if (key === 8 && this.password.length > 0) {
+                        this.password = this.password.substring(0, this.password.length - 1);
+                    }
+
+                    if (key === 9 || key === 10 || key === 13) {
+                        this.titleLoginField = 0;
+                    }
+
+                    if (valid) {
+                        this.password = this.password + String.fromCharCode(key);
+                    }
+
+                    if (this.password.length > 20) {
+                        this.password = this.password.substring(0, 20);
+                    }
+                }
+            }
+            // const x: number = (this.width / 2) | 0;
+            // let y: number = ((this.height / 2) | 0) + 50;
+            // y += 20;
+
+            // if (this.mouseClickButton === 1 && this.mouseClickX >= x - 75 && this.mouseClickX <= x + 75 && this.mouseClickY >= y - 20 && this.mouseClickY <= y + 20) {
+            //     this.titleScreenState = 0;
+            // }
         }
     };
 
@@ -795,26 +876,53 @@ class Game extends Client {
             this.imageTitlebutton?.draw(x - 73, y - 20);
             this.fontBold12?.drawStringTaggableCenter(x, y + 5, 'Cancel', Colors.WHITE, true);
         } else if (this.titleScreenState === 3) {
-            this.fontBold12?.drawStringTaggableCenter(w / 2, h / 2 - 60, 'Create a free account', Colors.YELLOW, true);
+            let x: number = ((w / 2) | 0) - 80;
+            let y: number = ((h / 2) | 0) - 40;
+            if (this.loginMessage0.length > 0) {
+                this.fontBold12?.drawStringTaggableCenter(w / 2, y - 15, this.loginMessage0, Colors.YELLOW, true);
+                this.fontBold12?.drawStringTaggableCenter(w / 2, y, this.loginMessage1, Colors.YELLOW, true);
+                y += 30;
+            } else {
+                this.fontBold12?.drawStringTaggableCenter(w / 2, y - 7, this.loginMessage1, Colors.YELLOW, true);
+                y += 30;
+            }
 
-            const x: number = (w / 2) | 0;
-            let y: number = ((h / 2) | 0) - 35;
-
-            this.fontBold12?.drawStringTaggableCenter((w / 2) | 0, y, 'To create a new account you need to', Colors.WHITE, true);
+            this.fontBold12?.drawStringTaggable(w / 2 - 90, y, `Username: ${this.username}${this.titleLoginField === 0 && this.loopCycle % 40 < 20 ? '@yel@|' : ''}`, Colors.WHITE, true);
             y += 15;
 
-            this.fontBold12?.drawStringTaggableCenter((w / 2) | 0, y, 'go back to the main RuneScape webpage', Colors.WHITE, true);
-            y += 15;
+            this.fontBold12?.drawStringTaggable(w / 2 - 88, y, `Password: ${JString.toAsterisks(this.password)}${this.titleLoginField === 1 && this.loopCycle % 40 < 20 ? '@yel@|' : ''}`, Colors.WHITE, true);
 
-            this.fontBold12?.drawStringTaggableCenter((w / 2) | 0, y, "and choose the red 'create account'", Colors.WHITE, true);
-            y += 15;
-
-            this.fontBold12?.drawStringTaggableCenter((w / 2) | 0, y, 'button at the top right of that page.', Colors.WHITE, true);
-            // y += 15; dead code
-
+            // x = w / 2 - 80; dead code
             y = ((h / 2) | 0) + 50;
             this.imageTitlebutton?.draw(x - 73, y - 20);
+            this.fontBold12?.drawStringTaggableCenter(x, y + 5, 'Signup', Colors.WHITE, true);
+
+            x = ((w / 2) | 0) + 80;
+            this.imageTitlebutton?.draw(x - 73, y - 20);
             this.fontBold12?.drawStringTaggableCenter(x, y + 5, 'Cancel', Colors.WHITE, true);
+
+            /// PREVIOUS NEW USER SCREEN
+            // this.fontBold12?.drawStringTaggableCenter(w / 2, h / 2 - 60, 'Create a free account', Colors.YELLOW, true);
+
+            // const x: number = (w / 2) | 0;
+            // let y: number = ((h / 2) | 0) - 35;
+
+            // this.fontBold12?.drawStringTaggableCenter((w / 2) | 0, y, 'To create a new account you need to', Colors.WHITE, true);
+            // y += 15;
+
+            // this.fontBold12?.drawStringTaggableCenter((w / 2) | 0, y, 'go back to the main RuneScape webpage', Colors.WHITE, true);
+            // y += 15;
+
+            // this.fontBold12?.drawStringTaggableCenter((w / 2) | 0, y, "and choose the red 'create account'", Colors.WHITE, true);
+            // y += 15;
+
+            // this.fontBold12?.drawStringTaggableCenter((w / 2) | 0, y, 'button at the top right of that page.', Colors.WHITE, true);
+            // // y += 15; dead code
+
+            // y = ((h / 2) | 0) + 50;
+            // this.imageTitlebutton?.draw(x - 73, y - 20);
+            // this.fontBold12?.drawStringTaggableCenter(x, y + 5, 'Cancel', Colors.WHITE, true);
+            /// END
         }
 
         this.imageTitle4?.draw(214, 186);
@@ -826,6 +934,54 @@ class Game extends Client {
             this.imageTitle6?.draw(574, 265);
             this.imageTitle7?.draw(128, 186);
             this.imageTitle8?.draw(574, 186);
+        }
+    };
+
+    private signUp = async (username: string, password: string, reconnect: boolean): Promise<void> => {
+        try {
+            this.stream = new ClientStream(await ClientStream.openSocket({host: Client.serverAddress, port: 43594 + Client.portOffset}));
+            await this.stream?.readBytes(this.in.data, 0, 8);
+            this.in.pos = 0;
+            this.serverSeed = this.in.g8;
+            const seed: Int32Array = new Int32Array([Math.floor(Math.random() * 99999999), Math.floor(Math.random() * 99999999), Number(this.serverSeed >> 32n), Number(this.serverSeed & BigInt(0xffffffff))]);
+            this.out.pos = 0;
+            this.out.p1(11);
+            this.out.p4(seed[0]);
+            this.out.p4(seed[1]);
+            this.out.p4(seed[2]);
+            this.out.p4(seed[3]);
+            this.out.p4(0);
+            this.out.pjstr(username);
+            this.out.pjstr(password);
+            this.out.rsaenc(Client.modulus, Client.exponent);
+            this.loginout.pos = 0;
+            this.loginout.p1(16);
+            this.loginout.p1(this.out.pos + 36 + 1 + 1);
+            this.loginout.p1(Client.clientversion);
+            this.loginout.p1(Client.lowMemory ? 1 : 0);
+            for (let i: number = 0; i < 9; i++) {
+                this.loginout.p4(this.archiveChecksums[i]);
+            }
+            this.loginout.pdata(this.out.data, this.out.pos, 0);
+            this.out.random = new Isaac(seed);
+            for (let i: number = 0; i < 4; i++) {
+                seed[i] += 50;
+            }
+            this.randomIn = new Isaac(seed);
+            this.stream?.write(this.loginout.data, this.loginout.pos);
+            const reply: number = await this.stream.read();
+
+            if (reply === 19) {
+                this.loginMessage0 = 'Account successfully created.';
+                this.loginMessage1 = 'You can now login to the game.';
+            }
+            if (reply === 20) {
+                // invalid username
+                this.loginMessage0 = 'That username is already taken.';
+            }
+        } catch (err) {
+            console.error(err);
+            this.errorLoading = true;
         }
     };
 
