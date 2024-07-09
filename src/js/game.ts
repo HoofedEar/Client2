@@ -657,6 +657,13 @@ class Game extends Client {
                 this.loginMessage1 = 'Enter your username & password.';
                 this.titleScreenState = 2;
                 this.titleLoginField = 0;
+
+                // try to get username saved in browser
+                const saved_usr: string | null = localStorage.getItem('04usr');
+                if (saved_usr !== null) {
+                    this.username = saved_usr;
+                    this.titleLoginField = 1;
+                }
             }
         } else if (this.titleScreenState === 2) {
             let y: number = ((this.height / 2) | 0) - 40;
@@ -678,6 +685,8 @@ class Game extends Client {
             buttonY += 20;
 
             if (this.mouseClickButton === 1 && this.mouseClickX >= buttonX - 75 && this.mouseClickX <= buttonX + 75 && this.mouseClickY >= buttonY - 20 && this.mouseClickY <= buttonY + 20) {
+                // save username in browser
+                localStorage.setItem('04usr', this.username);
                 await this.login(this.username, this.password, false);
             }
 
